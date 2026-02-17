@@ -8,12 +8,8 @@ from acidplyr import unlist2
 
 def test_everything_named():
     x = {
-        "grp1": pd.DataFrame(
-            {"a": [1, 2], "b": ["x", "y"]}, index=["r1", "r2"]
-        ),
-        "grp2": pd.DataFrame(
-            {"a": [3, 4], "b": ["z", "w"]}, index=["r3", "r4"]
-        ),
+        "grp1": pd.DataFrame({"a": [1, 2], "b": ["x", "y"]}, index=["r1", "r2"]),
+        "grp2": pd.DataFrame({"a": [3, 4], "b": ["z", "w"]}, index=["r3", "r4"]),
     }
     result = unlist2(x)
     assert result.shape == (4, 4)

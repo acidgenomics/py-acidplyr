@@ -5,7 +5,7 @@ from __future__ import annotations
 import pandas as pd
 
 
-def unnest2(df, col):
+def unnest2(df: pd.DataFrame, col: str) -> pd.DataFrame:
     """Explode a list-column into long format.
 
     Parameters
