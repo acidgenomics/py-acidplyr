@@ -49,7 +49,7 @@ def _is_na_like(v):
     try:
         if pd.isna(v):
             return True
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         pass
     return False
 
