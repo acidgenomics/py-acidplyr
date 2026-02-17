@@ -7,9 +7,20 @@ name = "acidplyr"
 version = "0.0.1"
 description = "A pandas-based grammar for data frame manipulation."
 license = "AGPL-3.0-only"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 authors = [{ name = "Michael Steinbaugh", email = "mike@steinbaugh.com" }]
 dependencies = ["numpy", "pandas"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
 
 [project.optional-dependencies]
 develop = ["pyright", "pytest", "pytest-cov", "ruff", "uv"]
