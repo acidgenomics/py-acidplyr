@@ -37,6 +37,6 @@ def rbind_to_dataframe(x):
             continue
         try:
             df[col] = pd.to_numeric(df[col])
-        except ValueError, TypeError:
+        except (ValueError, TypeError):
             pass
     return df
