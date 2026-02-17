@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "acidplyr"
+version = "0.0.1"
+description = "A pandas-based grammar for data frame manipulation."
+license = "AGPL-3.0-only"
+requires-python = ">=3.12"
+authors = [{ name = "Michael Steinbaugh", email = "mike@steinbaugh.com" }]
+dependencies = ["numpy", "pandas"]
+
+[project.optional-dependencies]
+develop = ["pyright", "pytest", "pytest-cov", "ruff", "uv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+indent-width = 4
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 72
+quote-style = "double"
+
+[tool.ruff.lint]
+# List of rules: https://docs.astral.sh/ruff/rules/
+select = [
+    "ANN", # flake8-annotations
+    "B",   # flake8-bugbear
+    "C90", # mccabe
+    "D",   # pydocstyle
+    "E",   # pycodestyle
+    "F",   # PyFlakes
+    "FIX", # flake8-fixme
+    "I",   # isort
+    "N",   # pep8-naming
+    "NPY", # NumPy-specific rules,
+    "PL",  # pylint
+    "SIM", # flake8-simplify
+    "UP",  # pyupgrade
+    "W",   # pycodestyle
+]
+ignore = [
+    "D203",   # one-blank-line-before-class
+    "D213",   # multi-line-summary-second-line
+    "D401",   # non-imperative-mood
+    "ANN401", # dynamically-typed-expressions
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "ANN001",  # missing-type-function-argument
+    "ANN201",  # missing-return-type-undocumented-public-function
+    "D101",    # undocumented-public-class
+    "D102",    # undocumented-public-method
+    "D103",    # undocumented-public-function
+    "D104",    # undocumented-public-package
+    "PLC0415", # import-outside-top-level
+]
+
+[tool.ruff.lint.isort]
+extra-standard-library = ["typing"]
+known-first-party = []
+order-by-type = true
+relative-imports-order = "closest-to-furthest"
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 100
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pylint]
+allow-magic-value-types = ["bytes", "int", "str"]
+max-args = 12
+
+[tool.setuptools.packages.find]
+where = ["src"]
