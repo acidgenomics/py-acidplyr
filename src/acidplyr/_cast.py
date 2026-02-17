@@ -31,9 +31,7 @@ def cast(
         raise ValueError(f"Column '{col_value}' not found in DataFrame.")
     col_data = df[col_colname]
     if not hasattr(col_data, "cat"):
-        raise TypeError(
-            f"Column '{col_colname}' must be categorical (unordered)."
-        )
+        raise TypeError(f"Column '{col_colname}' must be categorical (unordered).")
     if col_data.cat.ordered:
         raise TypeError(f"Column '{col_colname}' must not be ordered.")
     value_data = df[col_value]

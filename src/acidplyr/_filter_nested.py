@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from typing import Any
 
 import pandas as pd
 
@@ -43,18 +44,18 @@ def filter_nested(
     return df.loc[mask].reset_index(drop=True)
 
 
-def _unlist_row(row):
+def _unlist_row(row: pd.Series) -> list:
     """Recursively flatten all values in a row."""
-    result = []
+    result: list = []
     for v in row:
         result.extend(_flatten_value(v))
     return result
 
 
-def _flatten_value(v):
+def _flatten_value(v: Any) -> list:
     """Recursively flatten a value (including lists/tuples)."""
     if isinstance(v, (list, tuple)):
-        out = []
+        out: list = []
         for item in v:
             out.extend(_flatten_value(item))
         return out

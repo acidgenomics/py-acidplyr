@@ -2,16 +2,67 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union
-
 import numpy as np
 import pandas as pd
 
 
+def _parse_melt_input(
+    obj: np.ndarray | pd.DataFrame,
+    colnames: list | None,
+) -> tuple[np.ndarray, list[str] | None, list[str] | None]:
+    """Parse and validate melt input, returning matrix and names."""
+    if isinstance(obj, pd.DataFrame):
+        if colnames is not None:
+            obj = obj[colnames]
+        row_names = list(obj.index.astype(str))
+        col_names = list(obj.columns.astype(str))
+        return obj.values, row_names, col_names
+    if isinstance(obj, np.ndarray):
+        return obj, None, None
+    raise TypeError(f"Unsupported type: {type(obj)}")
+
+
+def _apply_row_filter(
+    mat: np.ndarray,
+    row_names: list[str],
+    min_val: float,
+) -> tuple[np.ndarray, list[str]]:
+    """Filter rows by per-row sum threshold."""
+    row_sums = np.nansum(mat, axis=1)
+    keep = row_sums >= min_val
+    mat = mat[keep, :]
+    row_names = [row_names[i] for i, k in enumerate(keep) if k]
+    return mat, row_names
+
+
+def _build_long_df(
+    mat: np.ndarray,
+    row_names: list[str],
+    col_names: list[str],
+) -> pd.DataFrame:
+    """Build long-format DataFrame from matrix and names."""
+    nrow, ncol = mat.shape
+    row_vals = []
+    col_vals = []
+    value_vals = []
+    for ci in range(ncol):
+        for ri in range(nrow):
+            row_vals.append(row_names[ri])
+            col_vals.append(col_names[ci])
+            value_vals.append(mat[ri, ci])
+    return pd.DataFrame(
+        {
+            "rowname": pd.Categorical(row_vals, categories=row_names),
+            "colname": pd.Categorical(col_vals, categories=col_names),
+            "value": value_vals,
+        }
+    )
+
+
 def melt(
-    obj: Union[np.ndarray, pd.DataFrame],
-    colnames: Optional[list] = None,
-    min: Optional[float] = None,
+    obj: np.ndarray | pd.DataFrame,
+    colnames: list | None = None,
+    min: float | None = None,
     min_method: str = "absolute",
     trans: str = "identity",
 ) -> pd.DataFrame:
@@ -39,18 +90,7 @@ def melt(
         raise ValueError("'min_method' must be 'absolute' or 'perRow'.")
     if trans not in ("identity", "log2", "log10"):
         raise ValueError("'trans' must be 'identity', 'log2', or 'log10'.")
-    if isinstance(obj, pd.DataFrame):
-        if colnames is not None:
-            obj = obj[colnames]
-        row_names = list(obj.index.astype(str))
-        col_names = list(obj.columns.astype(str))
-        mat = obj.values
-    elif isinstance(obj, np.ndarray):
-        mat = obj
-        row_names = None
-        col_names = None
-    else:
-        raise TypeError(f"Unsupported type: {type(obj)}")
+    mat, row_names, col_names = _parse_melt_input(obj, colnames)
     if mat.ndim != 2:
         raise ValueError("Input must be 2-dimensional.")
     nrow, ncol = mat.shape
@@ -59,26 +99,8 @@ def melt(
     if col_names is None:
         col_names = [str(i + 1) for i in range(ncol)]
     if min_method == "perRow" and min is not None and np.isfinite(min):
-        row_sums = np.nansum(mat, axis=1)
-        keep = row_sums >= min
-        mat = mat[keep, :]
-        row_names = [row_names[i] for i, k in enumerate(keep) if k]
-        nrow = mat.shape[0]
-    row_vals = []
-    col_vals = []
-    value_vals = []
-    for ci in range(ncol):
-        for ri in range(nrow):
-            row_vals.append(row_names[ri])
-            col_vals.append(col_names[ci])
-            value_vals.append(mat[ri, ci])
-    df = pd.DataFrame(
-        {
-            "rowname": pd.Categorical(row_vals, categories=row_names),
-            "colname": pd.Categorical(col_vals, categories=col_names),
-            "value": value_vals,
-        }
-    )
+        mat, row_names = _apply_row_filter(mat, row_names, min)
+    df = _build_long_df(mat, row_names, col_names)
     if min_method == "absolute" and min is not None and np.isfinite(min):
         df = df[df["value"] >= min].reset_index(drop=True)
     if trans == "log2":

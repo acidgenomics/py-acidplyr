@@ -5,7 +5,11 @@ from __future__ import annotations
 import pandas as pd
 
 
-def split_by_level(df, f, ref=False):
+def split_by_level(
+    df: pd.DataFrame,
+    f: str,
+    ref: bool = False,
+) -> dict[str, pd.DataFrame]:
     """Split a DataFrame by the levels of a Categorical column.
 
     Parameters
@@ -36,10 +40,7 @@ def split_by_level(df, f, ref=False):
     ref_level = levels[0]
     out = {}
     for lvl in levels:
-        if ref and lvl != ref_level:
-            mask = col.isin([ref_level, lvl])
-        else:
-            mask = col == lvl
+        mask = col.isin([ref_level, lvl]) if ref and lvl != ref_level else col == lvl
         subset = df.loc[mask].copy()
         subset[f] = subset[f].cat.remove_unused_categories()
         out[lvl] = subset

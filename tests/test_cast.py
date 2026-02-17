@@ -12,9 +12,7 @@ def long_df():
     df = pd.DataFrame(
         {
             "rowname": ["gene1", "gene1", "gene2", "gene2"],
-            "colname": pd.Categorical(
-                ["sample1", "sample2", "sample1", "sample2"]
-            ),
+            "colname": pd.Categorical(["sample1", "sample2", "sample1", "sample2"]),
             "value": [1, 2, 3, 4],
         }
     )

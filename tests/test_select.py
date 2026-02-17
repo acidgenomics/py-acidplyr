@@ -26,7 +26,7 @@ def test_select_float(df):
 def test_select_numeric(df):
     result = select_if(
         df,
-        predicate=lambda col: pd.api.types.is_numeric_dtype(col),
+        predicate=pd.api.types.is_numeric_dtype,
     )
     assert list(result.columns) == ["a", "b"]
 

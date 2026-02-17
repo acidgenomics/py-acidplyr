@@ -5,7 +5,11 @@ from __future__ import annotations
 import pandas as pd
 
 
-def unlist2(x, name_col="name", rowname_col="rowname"):
+def unlist2(
+    x: dict[str, pd.DataFrame],
+    name_col: str = "name",
+    rowname_col: str = "rowname",
+) -> pd.DataFrame:
     """Unlist a dictionary of DataFrames into a single DataFrame.
 
     Unlike ``pd.concat``, this adds explicit *name_col* and *rowname_col*
@@ -37,7 +41,5 @@ def unlist2(x, name_col="name", rowname_col="rowname"):
         tmp[rowname_col] = [str(i) for i in tmp.index]
         frames.append(tmp)
     out = pd.concat(frames, ignore_index=True)
-    cols = [name_col, rowname_col] + [
-        c for c in out.columns if c not in (name_col, rowname_col)
-    ]
+    cols = [name_col, rowname_col] + [c for c in out.columns if c not in (name_col, rowname_col)]
     return out[cols]
