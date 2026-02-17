@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
 
 
 def collapse_to_string(
-    obj: Union[list, np.ndarray, pd.Series, pd.DataFrame],
+    obj: list | np.ndarray | pd.Series | pd.DataFrame,
     sep: str = ", ",
     sort: bool = False,
     unique: bool = False,
-) -> Union[str, pd.DataFrame]:
+) -> str | pd.DataFrame:
     """Collapse values to a delimited string.
 
     For atomic/list inputs, returns a single string. For DataFrame inputs,
@@ -40,7 +40,7 @@ def collapse_to_string(
     return _collapse_atomic(obj, sep=sep, sort=sort, unique=unique)
 
 
-def _is_na_like(v):
+def _is_na_like(v: Any) -> bool:
     """Check if value is NA/NaN/None-like."""
     if v is None:
         return True
@@ -54,11 +54,14 @@ def _is_na_like(v):
     return False
 
 
-def _collapse_atomic(obj, sep=", ", sort=False, unique=False):
+def _collapse_atomic(
+    obj: list | np.ndarray | pd.Series,
+    sep: str = ", ",
+    sort: bool = False,
+    unique: bool = False,
+) -> str:
     """Collapse an atomic vector to a string."""
-    if isinstance(obj, (pd.Series, np.ndarray)):
-        values = list(obj)
-    elif isinstance(obj, (list, tuple)):
+    if isinstance(obj, (pd.Series, np.ndarray, list, tuple)):
         values = list(obj)
     else:
         return str(obj)
@@ -69,18 +72,23 @@ def _collapse_atomic(obj, sep=", ", sort=False, unique=False):
             return str(values[0])
         return ""
     if unique:
-        seen = []
+        seen: list = []
         for v in values:
             if v not in seen:
                 seen.append(v)
         values = seen
     if sort:
-        values = sorted(values, key=lambda x: str(x))
+        values = sorted(values, key=str)
     parts = [str(v) for v in values]
     return sep.join(parts)
 
 
-def _collapse_dataframe(obj, sep=", ", sort=False, unique=False):
+def _collapse_dataframe(
+    obj: pd.DataFrame,
+    sep: str = ", ",
+    sort: bool = False,
+    unique: bool = False,
+) -> pd.DataFrame:
     """Collapse a DataFrame to a single-row DataFrame."""
     if obj.empty:
         raise ValueError("Object has no length.")

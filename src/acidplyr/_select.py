@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import pandas as pd
 
 
-def select_if(df, predicate):
+def select_if(df: pd.DataFrame, predicate: Callable) -> pd.DataFrame:
     """Select columns of a DataFrame that satisfy a predicate.
 
     Parameters

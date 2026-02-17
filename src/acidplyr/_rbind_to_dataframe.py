@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import contextlib
+
 import numpy as np
 import pandas as pd
 
 
-def rbind_to_dataframe(x):
+def rbind_to_dataframe(x: dict) -> pd.DataFrame:
     """Convert a named dictionary of dictionaries to a DataFrame.
 
     Parameters
@@ -35,8 +37,6 @@ def rbind_to_dataframe(x):
     for col in df.columns:
         if df[col].apply(lambda v: isinstance(v, (list, np.ndarray))).any():
             continue
-        try:
+        with contextlib.suppress(ValueError, TypeError):
             df[col] = pd.to_numeric(df[col])
-        except (ValueError, TypeError):
-            pass
     return df
