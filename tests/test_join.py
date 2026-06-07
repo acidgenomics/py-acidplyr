@@ -83,10 +83,11 @@ def test_inner_join_unmatched():
 
 
 def test_left_join_with_duplicates():
+    """Duplicate x keys raise ValueError (R enforces uniqueness on both sides)."""
     x = pd.DataFrame({"a": [1, 1, 2], "b": ["x", "y", "z"]})
     y = pd.DataFrame({"a": [1, 2], "c": ["p", "q"]})
-    result = left_join(x, y, by="a")
-    assert len(result) == 3
+    with pytest.raises(ValueError, match="not unique"):
+        left_join(x, y, by="a")
 
 
 def test_join_by_multiple():

@@ -1,7 +1,5 @@
 """Join operations for pandas DataFrames."""
 
-from __future__ import annotations
-
 import pandas as pd
 
 
@@ -16,6 +14,25 @@ def _check_by_columns_exist(
             raise ValueError(f"Column '{col}' not found in 'x'.")
         if col not in y.columns:
             raise ValueError(f"Column '{col}' not found in 'y'.")
+
+
+def _check_by_dtypes_match(
+    x: pd.DataFrame,
+    y: pd.DataFrame,
+    by: list[str],
+) -> None:
+    """Check that 'by' column dtypes are identical between x and y.
+
+    Mismatched dtypes (e.g. int vs float, str vs category) silently produce
+    wrong merge results in pandas — R asserts class identity here.
+    """
+    for col in by:
+        xd = x[col].dtype
+        yd = y[col].dtype
+        if xd != yd:
+            raise TypeError(
+                f"Column '{col}' dtype mismatch: x has {xd!r}, y has {yd!r}."
+            )
 
 
 def _check_by_constraints(
@@ -53,6 +70,7 @@ def _validate_join_args(
     overlap = x_extra & y_extra
     if overlap:
         raise ValueError(f"Non-key columns overlap between 'x' and 'y': {overlap}.")
+    _check_by_dtypes_match(x, y, by)
     _check_by_constraints(
         y, by, label="y", require_unique=require_y_unique, require_complete=require_y_complete
     )
@@ -69,8 +87,10 @@ def inner_join(
 ) -> pd.DataFrame:
     """Inner join: return rows present in both x and y."""
     by = _validate_join_args(x, y, by)
-    out = pd.merge(x, y, on=by, how="inner", sort=False)
-    out = out.reset_index(drop=True)
+    # Add positional index to preserve x row order after merge
+    x_idx = x.assign(**{"._x_idx": range(len(x))})
+    out = pd.merge(x_idx, y, on=by, how="inner", sort=False)
+    out = out.sort_values("._x_idx").drop(columns=["._x_idx"]).reset_index(drop=True)
     return out
 
 
@@ -79,27 +99,30 @@ def left_join(
     y: pd.DataFrame,
     by: str | list[str],
 ) -> pd.DataFrame:
-    """Left join: return all rows from x, matching rows from y."""
-    by_list = [by] if isinstance(by, str) else list(by)
-    if len(by_list) != len(set(by_list)):
-        raise ValueError("'by' columns must not contain duplicates.")
-    _check_by_columns_exist(x, y, by_list)
-    x_extra = set(x.columns) - set(by_list)
-    y_extra = set(y.columns) - set(by_list)
-    overlap = x_extra & y_extra
-    if overlap:
-        raise ValueError(f"Non-key columns overlap between 'x' and 'y': {overlap}.")
-    if y[by_list].duplicated().any():
-        raise ValueError("Columns defined in 'by' argument are not unique.")
-    if y[by_list].isna().any().any():
-        raise ValueError("Columns defined in 'by' argument contain NA.")
-    original_order = x.index.copy()
-    out = pd.merge(x, y, on=by_list, how="left", sort=False)
-    if len(out) > len(x):
-        out = out.drop_duplicates(subset=list(x.columns), keep="first")
-        if len(out) > len(x):
-            out = out.head(len(x))
-    out.index = original_order
+    """Left join: return all rows from x, matching rows from y.
+
+    Guarantees exactly ``len(x)`` output rows by tracking x row positions
+    through the merge — matches R's index-based reconstruction.
+    """
+    by_list = _validate_join_args(
+        x,
+        y,
+        by,
+        require_x_unique=True,
+        require_y_unique=True,
+        require_x_complete=False,  # R allows NA keys in x for left join
+        require_y_complete=True,
+    )
+    # Attach a positional index to reconstruct exact x row order/count
+    x_idx = x.assign(**{"._x_idx": range(len(x))})
+    out = pd.merge(x_idx, y, on=by_list, how="left", sort=False)
+    # Re-sort by the original x position and take exactly len(x) rows
+    out = (
+        out.sort_values("._x_idx")
+        .drop(columns=["._x_idx"])
+        .iloc[: len(x)]
+        .reset_index(drop=True)
+    )
     return out
 
 
@@ -131,9 +154,16 @@ def semi_join(
 ) -> pd.DataFrame:
     """Semi join: return rows from x that have matches in y."""
     by = _validate_join_args(x, y, by)
-    merged = pd.merge(x, y[by], on=by, how="inner", sort=False)
-    # Keep only x columns and deduplicate
-    out = merged[list(x.columns)].drop_duplicates().reset_index(drop=True)
+    # Add positional index to preserve x order
+    x_idx = x.assign(**{"._x_idx": range(len(x))})
+    merged = pd.merge(x_idx, y[by], on=by, how="inner", sort=False)
+    out = (
+        merged[["._x_idx", *list(x.columns)]]
+        .drop_duplicates(subset=["._x_idx"])
+        .sort_values("._x_idx")
+        .drop(columns=["._x_idx"])
+        .reset_index(drop=True)
+    )
     return out
 
 
