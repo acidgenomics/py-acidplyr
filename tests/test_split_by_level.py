@@ -6,7 +6,7 @@ import pytest
 from acidplyr import split_by_level
 
 
-@pytest.fixture()
+@pytest.fixture
 def df():
     return pd.DataFrame(
         {

@@ -7,7 +7,7 @@ import pytest
 from acidplyr import select_if
 
 
-@pytest.fixture()
+@pytest.fixture
 def df():
     return pd.DataFrame(
         {
@@ -32,5 +32,5 @@ def test_select_numeric(df):
 
 
 def test_no_match(df):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="No columns"):
         select_if(df, predicate=lambda col: col.dtype == np.bool_)
