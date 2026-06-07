@@ -13,7 +13,7 @@ from acidplyr import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def members():
     return pd.DataFrame(
         {
@@ -23,7 +23,7 @@ def members():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def instruments():
     return pd.DataFrame(
         {
