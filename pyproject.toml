@@ -7,7 +7,8 @@ name = "acidplyr"
 version = "0.1.0"
 description = "A pandas-based grammar for data frame manipulation."
 readme = "README.md"
-license = "AGPL-3.0-or-later"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 authors = [{ name = "Michael Steinbaugh", email = "mike@steinbaugh.com" }]
 maintainers = [{ name = "Acid Genomics" }]
@@ -40,6 +41,7 @@ develop = [
 [project.urls]
 Homepage = "https://github.com/acidgenomics/py-acidplyr"
 Repository = "https://github.com/acidgenomics/py-acidplyr"
+Changelog = "https://github.com/acidgenomics/py-acidplyr/blob/main/CHANGELOG.md"
 
 [tool.uv]
 package = true
@@ -91,10 +93,14 @@ override_SS05 = ['^Access ', '^Assess ', '^Process ']
 [tool.pyright]
 pythonVersion = "3.12"
 verboseOutput = true
+exclude = ["tests", ".venv"]
+venvPath = "."
+venv = ".venv"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+pythonpath = ["src"]
 
 [tool.ruff]
 indent-width = 4
@@ -186,9 +192,10 @@ max-statements = 100
 
 [tool.ty.environment]
 python-version = "3.12"
+python = ".venv"
 
 [tool.ty.src]
-exclude = [".venv", "**/__pycache__", "**/.*"]
+exclude = [".venv", "**/__pycache__", "**/.*", "tests"]
 
 [tool.ty.terminal]
 error-on-warning = true

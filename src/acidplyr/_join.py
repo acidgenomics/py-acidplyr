@@ -30,9 +30,7 @@ def _check_by_dtypes_match(
         xd = x[col].dtype
         yd = y[col].dtype
         if xd != yd:
-            raise TypeError(
-                f"Column '{col}' dtype mismatch: x has {xd!r}, y has {yd!r}."
-            )
+            raise TypeError(f"Column '{col}' dtype mismatch: x has {xd!r}, y has {yd!r}.")
 
 
 def _check_by_constraints(
@@ -44,9 +42,10 @@ def _check_by_constraints(
     require_complete: bool,
 ) -> None:
     """Check uniqueness and completeness constraints on 'by' columns."""
-    if require_unique and df[by].duplicated().any():
+    sub = pd.DataFrame(df[by])
+    if require_unique and bool(sub.duplicated().any()):
         raise ValueError(f"Columns defined in 'by' argument are not unique in '{label}'.")
-    if require_complete and df[by].isna().any().any():
+    if require_complete and bool(sub.isna().any(axis=None)):
         raise ValueError(f"Columns defined in 'by' argument contain NA in '{label}'.")
 
 
@@ -117,12 +116,7 @@ def left_join(
     x_idx = x.assign(**{"._x_idx": range(len(x))})
     out = pd.merge(x_idx, y, on=by_list, how="left", sort=False)
     # Re-sort by the original x position and take exactly len(x) rows
-    out = (
-        out.sort_values("._x_idx")
-        .drop(columns=["._x_idx"])
-        .iloc[: len(x)]
-        .reset_index(drop=True)
-    )
+    out = out.sort_values("._x_idx").drop(columns=["._x_idx"]).iloc[: len(x)].reset_index(drop=True)
     return out
 
 
@@ -158,7 +152,7 @@ def semi_join(
     x_idx = x.assign(**{"._x_idx": range(len(x))})
     merged = pd.merge(x_idx, y[by], on=by, how="inner", sort=False)
     out = (
-        merged[["._x_idx", *list(x.columns)]]
+        pd.DataFrame(merged[["._x_idx", *list(x.columns)]])
         .drop_duplicates(subset=["._x_idx"])
         .sort_values("._x_idx")
         .drop(columns=["._x_idx"])

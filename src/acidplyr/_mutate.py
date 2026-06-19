@@ -34,8 +34,8 @@ def mutate_at(
     """Apply a function to specific columns of a DataFrame."""
     mutated = transmute_at(df, vars, fun, *args, **kwargs)
     remaining = df[[c for c in df.columns if c not in mutated.columns]]
-    out = pd.concat([mutated, remaining], axis=1)
-    return out[list(df.columns)]
+    out = pd.DataFrame(pd.concat([mutated, remaining], axis=1))
+    return pd.DataFrame(out[list(df.columns)])
 
 
 def mutate_if(
@@ -48,8 +48,8 @@ def mutate_if(
     """Apply a function to columns matching a predicate."""
     mutated = transmute_if(df, predicate, fun, *args, **kwargs)
     remaining = df[[c for c in df.columns if c not in mutated.columns]]
-    out = pd.concat([mutated, remaining], axis=1)
-    return out[list(df.columns)]
+    out = pd.DataFrame(pd.concat([mutated, remaining], axis=1))
+    return pd.DataFrame(out[list(df.columns)])
 
 
 def transmute_at(
@@ -60,7 +60,7 @@ def transmute_at(
     **kwargs: Any,
 ) -> pd.DataFrame:
     """Apply a function to specific columns, returning only those columns."""
-    return mutate_all(df[vars], fun, *args, **kwargs)
+    return mutate_all(pd.DataFrame(df[vars]), fun, *args, **kwargs)
 
 
 def transmute_if(
