@@ -35,7 +35,7 @@ def rbind_to_dataframe(x: dict) -> pd.DataFrame:
             rows[key] = {"value": val}
     df = pd.DataFrame.from_dict(rows, orient="index")
     for col in df.columns:
-        if df[col].apply(lambda v: isinstance(v, (list, np.ndarray))).any():
+        if bool(df[col].apply(lambda v: isinstance(v, (list, np.ndarray))).any()):
             continue
         with contextlib.suppress(ValueError, TypeError):
             df[col] = pd.to_numeric(df[col])

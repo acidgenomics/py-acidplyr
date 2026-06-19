@@ -27,7 +27,7 @@ def test_only_colnames():
 
 
 def test_empty_dict():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="length 0"):
         unlist2({})
 
 

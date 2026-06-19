@@ -7,7 +7,7 @@ import pytest
 from acidplyr import melt
 
 
-@pytest.fixture()
+@pytest.fixture
 def mat():
     """4x4 integer matrix as DataFrame."""
     data = np.arange(1, 17).reshape(4, 4)
@@ -61,5 +61,5 @@ def test_lacking_names():
 
 
 def test_invalid_trans(mat):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="trans"):
         melt(mat, trans="log3")
