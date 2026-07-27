@@ -23,6 +23,7 @@ html_theme_options = {
     "github_url": "https://github.com/acidgenomics/py-acidplyr",
     "logo": {"text": "acidplyr"},
 }
+html_css_files = ["https://python.acidgenomics.com/css/sphinx.css"]
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable", None),
