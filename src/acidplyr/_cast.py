@@ -44,8 +44,10 @@ def cast(
     groups = {}
     for cat in categories:
         mask = col_data == cat
-        groups[cat] = value_data[mask].values
+        groups[cat] = pd.Series(value_data[mask]).values
     wide = pd.DataFrame(groups)
+    # Sort columns alphabetically, matching R: df[, sort(colnames(df))]
+    wide = pd.DataFrame(wide[sorted(wide.columns)])
     if extra_cols:
         row_labels = df.loc[first_mask, extra_cols].reset_index(drop=True)
         if len(extra_cols) == 1:

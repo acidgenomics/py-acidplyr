@@ -12,11 +12,10 @@ def _parse_melt_input(
 ) -> tuple[np.ndarray, list[str] | None, list[str] | None]:
     """Parse and validate melt input, returning matrix and names."""
     if isinstance(obj, pd.DataFrame):
-        if colnames is not None:
-            obj = obj[colnames]
-        row_names = list(obj.index.astype(str))
-        col_names = list(obj.columns.astype(str))
-        return obj.values, row_names, col_names
+        df: pd.DataFrame = pd.DataFrame(obj[colnames]) if colnames is not None else obj
+        row_names = list(df.index.astype(str))
+        col_names = list(df.columns.astype(str))
+        return df.values, row_names, col_names
     if isinstance(obj, np.ndarray):
         return obj, None, None
     raise TypeError(f"Unsupported type: {type(obj)}")
@@ -102,7 +101,7 @@ def melt(
         mat, row_names = _apply_row_filter(mat, row_names, min)
     df = _build_long_df(mat, row_names, col_names)
     if min_method == "absolute" and min is not None and np.isfinite(min):
-        df = df[df["value"] >= min].reset_index(drop=True)
+        df = pd.DataFrame(df[df["value"] >= min]).reset_index(drop=True)
     if trans == "log2":
         df["value"] = np.log2(df["value"].astype(float) + 1)
     elif trans == "log10":

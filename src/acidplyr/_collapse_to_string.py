@@ -1,8 +1,6 @@
 """Collapse values to a single string."""
 
-from __future__ import annotations
-
-from typing import Any
+import contextlib
 
 import numpy as np
 import pandas as pd
@@ -26,7 +24,8 @@ def collapse_to_string(
     sep : str
         Separator string.
     sort : bool
-        Whether to sort values before collapsing.
+        Whether to sort values before collapsing. NA values sort last
+        (matches R ``sort(na.last=TRUE)``).
     unique : bool
         Whether to keep only unique values before collapsing.
 
@@ -34,24 +33,24 @@ def collapse_to_string(
     -------
     str or pd.DataFrame
         A single collapsed string, or a single-row DataFrame.
+
+    Notes
+    -----
+    Matches R's ``collapseToString`` semantics: all values (including
+    ``NA``/``NaN``) are converted to strings via ``str()``; ``NA`` becomes
+    the literal string ``"NA"`` rather than being silently dropped.
     """
     if isinstance(obj, pd.DataFrame):
         return _collapse_dataframe(obj, sep=sep, sort=sort, unique=unique)
     return _collapse_atomic(obj, sep=sep, sort=sort, unique=unique)
 
 
-def _is_na_like(v: Any) -> bool:
-    """Check if value is NA/NaN/None-like."""
-    if v is None:
-        return True
-    if isinstance(v, float) and np.isnan(v):
-        return True
-    try:
-        if pd.isna(v):
-            return True
-    except (ValueError, TypeError):
-        pass
-    return False
+def _to_str(v: object) -> str:
+    """Convert a value to string, rendering pandas NA as 'NA'."""
+    is_na = False
+    with contextlib.suppress(ValueError, TypeError):
+        is_na = bool(pd.isna(v))
+    return "NA" if is_na else str(v)
 
 
 def _collapse_atomic(
@@ -60,17 +59,16 @@ def _collapse_atomic(
     sort: bool = False,
     unique: bool = False,
 ) -> str:
-    """Collapse an atomic vector to a string."""
-    if isinstance(obj, (pd.Series, np.ndarray, list, tuple)):
-        values = list(obj)
-    else:
-        return str(obj)
-    # Remove NA/None values.
-    values = [v for v in values if not _is_na_like(v)]
-    if len(values) <= 1:
-        if len(values) == 1:
-            return str(values[0])
-        return ""
+    """Collapse an atomic vector to a string.
+
+    Matches R's ``collapseToString,atomic``: scalar inputs are returned
+    as-is (as a string); no NA stripping is performed.
+    """
+    if not isinstance(obj, (pd.Series, np.ndarray, list, tuple)):
+        return _to_str(obj)
+    values = list(obj)
+    if len(values) == 1:
+        return _to_str(values[0])
     if unique:
         seen: list = []
         for v in values:
@@ -78,9 +76,15 @@ def _collapse_atomic(
                 seen.append(v)
         values = seen
     if sort:
-        values = sorted(values, key=str)
-    parts = [str(v) for v in values]
-    return sep.join(parts)
+        # NA/None values sort last (R: sort(na.last=TRUE))
+        def _sort_key(v: object) -> tuple:
+            na = False
+            with contextlib.suppress(ValueError, TypeError):
+                na = bool(pd.isna(v))
+            return (na, str(v))
+
+        values = sorted(values, key=_sort_key)
+    return sep.join(_to_str(v) for v in values)
 
 
 def _collapse_dataframe(

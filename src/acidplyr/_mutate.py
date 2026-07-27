@@ -1,17 +1,11 @@
 """Mutate and transmute operations for DataFrames."""
 
-from __future__ import annotations
-
 from collections.abc import Callable
 from typing import Any
 
 import pandas as pd
 
-
-def select_if(df: pd.DataFrame, predicate: Callable) -> pd.DataFrame:
-    """Select columns matching a predicate (internal helper)."""
-    keep = [col for col in df.columns if predicate(df[col])]
-    return df[keep]
+from acidplyr._select import select_if
 
 
 def mutate_all(
@@ -40,9 +34,8 @@ def mutate_at(
     """Apply a function to specific columns of a DataFrame."""
     mutated = transmute_at(df, vars, fun, *args, **kwargs)
     remaining = df[[c for c in df.columns if c not in mutated.columns]]
-    out = pd.concat([mutated, remaining], axis=1)
-    out = out[list(df.columns)]
-    return out
+    out = pd.DataFrame(pd.concat([mutated, remaining], axis=1))
+    return pd.DataFrame(out[list(df.columns)])
 
 
 def mutate_if(
@@ -55,9 +48,8 @@ def mutate_if(
     """Apply a function to columns matching a predicate."""
     mutated = transmute_if(df, predicate, fun, *args, **kwargs)
     remaining = df[[c for c in df.columns if c not in mutated.columns]]
-    out = pd.concat([mutated, remaining], axis=1)
-    out = out[list(df.columns)]
-    return out
+    out = pd.DataFrame(pd.concat([mutated, remaining], axis=1))
+    return pd.DataFrame(out[list(df.columns)])
 
 
 def transmute_at(
@@ -68,8 +60,7 @@ def transmute_at(
     **kwargs: Any,
 ) -> pd.DataFrame:
     """Apply a function to specific columns, returning only those columns."""
-    subset = df[vars]
-    return mutate_all(subset, fun, *args, **kwargs)
+    return mutate_all(pd.DataFrame(df[vars]), fun, *args, **kwargs)
 
 
 def transmute_if(
@@ -80,5 +71,4 @@ def transmute_if(
     **kwargs: Any,
 ) -> pd.DataFrame:
     """Apply a function to columns matching a predicate, returning only those."""
-    subset = select_if(df, predicate)
-    return mutate_all(subset, fun, *args, **kwargs)
+    return mutate_all(select_if(df, predicate), fun, *args, **kwargs)

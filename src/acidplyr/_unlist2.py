@@ -40,6 +40,6 @@ def unlist2(
         tmp[name_col] = key
         tmp[rowname_col] = [str(i) for i in tmp.index]
         frames.append(tmp)
-    out = pd.concat(frames, ignore_index=True)
+    out = pd.DataFrame(pd.concat(frames, ignore_index=True))
     cols = [name_col, rowname_col] + [c for c in out.columns if c not in (name_col, rowname_col)]
-    return out[cols]
+    return pd.DataFrame(out[cols])

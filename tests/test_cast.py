@@ -6,7 +6,7 @@ import pytest
 from acidplyr import cast
 
 
-@pytest.fixture()
+@pytest.fixture
 def long_df():
     """Long-form DataFrame similar to AcidTest::DFrame."""
     df = pd.DataFrame(

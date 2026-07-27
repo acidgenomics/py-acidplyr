@@ -40,5 +40,5 @@ def test_rejects_non_dict():
 
 
 def test_rejects_empty():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="length 0"):
         rbind_to_dataframe({})

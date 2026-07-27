@@ -25,7 +25,7 @@ def unnest2(df: pd.DataFrame, col: str) -> pd.DataFrame:
     if col not in df.columns:
         raise KeyError(f"Column '{col}' not found in DataFrame.")
     is_list = df[col].apply(lambda v: isinstance(v, (list, tuple)))
-    if not is_list.any():
+    if not bool(is_list.any()):
         raise TypeError(f"Column '{col}' does not contain list values.")
     out = df.explode(col, ignore_index=True)
     return out

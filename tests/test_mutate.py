@@ -19,7 +19,7 @@ EXPECTED_10 = 10.0
 EXPECTED_101 = 101.0
 
 
-@pytest.fixture()
+@pytest.fixture
 def df():
     return pd.DataFrame(
         {

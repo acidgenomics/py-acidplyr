@@ -28,4 +28,4 @@ def select_if(df: pd.DataFrame, predicate: Callable) -> pd.DataFrame:
     keep = [col for col in df.columns if predicate(df[col])]
     if len(keep) == 0:
         raise ValueError("No columns matched the predicate.")
-    return df[keep]
+    return pd.DataFrame(df[keep])

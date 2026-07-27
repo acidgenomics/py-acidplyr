@@ -26,8 +26,9 @@ def test_unique():
 
 
 def test_na_handling():
+    """NA/None values are preserved as 'NA' (R semantics, not stripped)."""
     result = collapse_to_string(["a", None, "b"])
-    assert result == "a, b"
+    assert result == "a, NA, b"
 
 
 def test_scalar():
