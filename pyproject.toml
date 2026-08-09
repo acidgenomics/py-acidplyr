@@ -25,7 +25,7 @@ classifiers = [
 dependencies = ["numpy", "pandas"]
 
 [project.optional-dependencies]
-docs = ["myst-parser", "numpydoc", "pydata-sphinx-theme", "sphinx"]
+docs = ["myst-parser", "numpydoc", "sphinx"]
 develop = [
   "bumpver",
   "coverage",
@@ -90,6 +90,10 @@ checks = [
   "SS06", # nor require the summary to fit on one line
 ]
 override_SS05 = ['^Access ', '^Assess ', '^Process ']
+# Skip private (underscore-prefixed) functions/methods: node_name is dotted
+# module-qualified (e.g. "_join._validate_join_args"), so match the
+# underscore after the final dot rather than anchoring on ^_.
+exclude = ['\._\w']
 
 [tool.pyright]
 pythonVersion = "3.12"
@@ -99,8 +103,8 @@ venvPath = "."
 venv = ".venv"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "-v --tb=short"
+testpaths = ["src", "tests"]
+addopts = "-v --tb=short --doctest-modules"
 pythonpath = ["src"]
 
 [tool.ruff]

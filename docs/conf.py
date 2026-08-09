@@ -2,8 +2,9 @@
 
 project = "acidplyr"
 author = "Michael Steinbaugh"
-copyright = "Acid Genomics"  # noqa: A001
+copyright = "Acid Genomics"
 extensions = [
+    "myst_parser",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
@@ -18,12 +19,15 @@ autodoc_default_options = {
 }
 napoleon_numpy_docstring = True
 napoleon_google_docstring = False
-html_theme = "pydata_sphinx_theme"
+numpydoc_show_class_members = False
+html_theme = "acidgenomics"
+html_theme_path = ["_themes"]
 html_theme_options = {
-    "github_url": "https://github.com/acidgenomics/py-acidplyr",
-    "logo": {"text": "acidplyr"},
+    "sitesearch": "python.acidgenomics.com",
+    "repo_url": "https://github.com/acidgenomics/py-acidplyr",
 }
-html_css_files = ["https://python.acidgenomics.com/css/sphinx.css"]
+html_show_sourcelink = False
+html_show_sphinx = False
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable", None),

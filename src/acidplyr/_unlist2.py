@@ -27,6 +27,14 @@ def unlist2(
     Returns
     -------
     pd.DataFrame
+        Concatenated DataFrame with *name_col* and *rowname_col* prepended.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> d = {"a": pd.DataFrame({"x": [1, 2]}), "b": pd.DataFrame({"x": [3]})}
+    >>> unlist2(d).to_dict("list")
+    {'name': ['a', 'a', 'b'], 'rowname': ['0', '1', '0'], 'x': [1, 2, 3]}
     """
     if not isinstance(x, dict):
         raise TypeError("'x' must be a dict.")
