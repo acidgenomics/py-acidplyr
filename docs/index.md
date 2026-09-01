@@ -10,26 +10,18 @@ and reshape/list utilities for working with nested or wide-format data.
 
 ### uv method
 
-This package is hosted at [python.acidgenomics.com](https://python.acidgenomics.com/).
+This package is hosted on [PyPI](https://pypi.org/project/acidgenomics-acidplyr/)
+as `acidgenomics-acidplyr`. The import name is unchanged: `acidplyr`.
 We recommend using [uv](https://docs.astral.sh/uv/) to install.
 
 ```sh
-uv pip install \
-    --index-url 'https://python.acidgenomics.com/simple/' \
-    acidplyr
+uv add acidgenomics-acidplyr
 ```
 
-Or add the index to your project's `pyproject.toml`:
-
-```toml
-[[tool.uv.index]]
-url = "https://python.acidgenomics.com/simple/"
-```
-
-Then install:
+Or with [pip](https://pip.pypa.io/):
 
 ```sh
-uv add acidplyr
+pip install acidgenomics-acidplyr
 ```
 
 ### Conda method

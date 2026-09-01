@@ -3,7 +3,7 @@ build-backend = "uv_build"
 requires = ["uv_build>=0.11,<1"]
 
 [project]
-name = "acidplyr"
+name = "acidgenomics-acidplyr"
 version = "0.1.0"
 description = "A pandas-based grammar for data frame manipulation."
 readme = "README.md"
